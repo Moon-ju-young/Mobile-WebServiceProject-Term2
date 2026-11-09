@@ -58,6 +58,7 @@ class ChangeDetection:
 
         # Post Create
         data= {
+            'author': 1,
             'title' : self.title, 
             'text' : self.text, 
             'created_date' : now, 
