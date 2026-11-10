@@ -66,6 +66,9 @@ class ChangeDetection:
         full_path = save_path / '{0}-{1}-{2}-{3}.jpg'.format(today.hour,today.minute,today.second,today.microsecond)
         
         dst = cv2.resize(image, dsize=(320, 240), interpolation=cv2.INTER_AREA)
+        # 이미지에 현재 시간 텍스트 그리기 추가
+        time_str = today.strftime('%Y-%m-%d %H:%M:%S')
+        cv2.putText(dst, time_str, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
         cv2.imwrite(full_path, dst)
 
         # 인증이필요한요청에아래의headers를붙임
