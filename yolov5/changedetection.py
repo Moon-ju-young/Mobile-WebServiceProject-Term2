@@ -1,5 +1,6 @@
 import os
 import cv2
+import time
 import pathlib
 import requests
 from datetime import datetime
@@ -12,9 +13,14 @@ class ChangeDetection:
     token = ''
     title = ''
     text = ''
-    
+     
+    DELAY = 1.0           # 최소 전송 간격 (1초 딜레이)
+    last_sent_time = 0.0  # 마지막 전송 시각 기록
+
     def __init__(self, names):
         self.result_prev = [0 for i in range(len(names))]
+        self.last_sent_time = 0.0  # 인스턴스 변수로 확실하게 초기화
+        self.DELAY = 1.0           # 1초 대기 설정
         res = requests.post(self.HOST + '/api-token-auth/', {
             'username': self.username,
             'password': self.password,
@@ -37,8 +43,17 @@ class ChangeDetection:
 
         self.result_prev = detected_current[:] # 객체 검출 상태 저장
 
-        if change_flag==1:
-            self.send(save_dir, image)
+        if change_flag == 1:
+            current_time = time.time()
+            elapsed = current_time - self.last_sent_time
+            
+            # 1초 이상 지났을 때만 전송 
+            if elapsed >= self.DELAY:
+                self.last_sent_time = current_time
+                print(f"[Sent] {elapsed:.2f}s elapsed since last send")
+                self.send(save_dir, image)
+            else:
+                print(f"[Skipped - Cooldown] {elapsed:.2f}s elapsed (< 1.0s)")
 
     def send(self, save_dir, image):
         now= datetime.now()
